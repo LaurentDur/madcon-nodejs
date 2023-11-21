@@ -45,8 +45,8 @@
 | Foule  | Les mouvements sont difficiles, tous les +/- 2 sont considérés comme des +/- 1 durant cette journée | 
 | Alarme incendie  | A la fin de la journée, tous les visiteurs non recrutés du salon recule de 1. S'ils sont dans l'entrée, ils ne bougent pas. |
 | Super Goodies | A la fin de la journée, tous les visiteurs du salon avance de 1 | 
-| Goodies sur votre gauche x 2 | A la fin de la journée, tous les visiteurs du salon se déplace de 1 vers la gauche | 
-| Goodies sur votre droite x 2 | A la fin de la journée, tous les visiteurs du salon se déplace de 1 vers la droite | 
+| Goodies sur votre gauche | A la fin de la journée, tous les visiteurs du salon se déplace de 1 vers la gauche | 
+| Goodies sur votre droite | A la fin de la journée, tous les visiteurs du salon se déplace de 1 vers la droite | 
 | Panne d'encre | Ne révellez aucune carte de vos deux dernières missions. | 
 | Surveillance accrue | Il n'est pas possible de tuer faire "disparaître" un visiteur pendant cette journée. Si vous jouer cette action, ignorer son effet. | 
 | Improvisation | Piochez une carte d'action de plus pour cette journée. Ne programmez pas la dernière action de la journée, quand vous devrez la jouer, choisissez parmi les cartes restantes de votre main. L'organisation doit être programmée.| 

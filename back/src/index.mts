@@ -3,6 +3,6 @@ import Game from "./objects/game.mjs";
 
 const game = new Game(7)
 // Init game
-game.reset()
+game.startGame()
 
-console.log(game)
+// console.log(game)

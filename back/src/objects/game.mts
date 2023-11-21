@@ -1,4 +1,5 @@
 import Board from "./board.mjs";
+import CardAction, { ACTIONCARDS } from "./cardAction.mjs";
 import CardOrganisation from "./cardOrganisation.mjs";
 import Entity from "./entity.mjs";
 import Player from "./player.mjs";
@@ -39,9 +40,14 @@ export default class Game extends Entity {
 
     readonly teams: Team[] = []
 
+    private _currentRound = 0
+
     constructor(nbPlayer: number) {
         super()
         this.nbPlayer = z.number().min(2).max(7).parse(nbPlayer)
+        
+        // Init game
+        this.reset()
     }
 
     reset(): void {
@@ -53,39 +59,51 @@ export default class Game extends Entity {
         this.createVisitors()
         this.createPlayers()
 
-        this.dispatchPlayerInTeams()
-        this.players[0].giveSecurityToken()
-
-        this.createPlayerCardDeck()
+        this._currentRound = 0
     }
 
     protected createTeams() {
+
+        const orgas = [ORGANISATIONS.orga1, ORGANISATIONS.orga2, ORGANISATIONS.orga3, ORGANISATIONS.orga4]
+        this.shuffleArray(orgas)
+
         // Clean
         this.teams.forEach(p => p.reset())
         this.teams.length = 0
 
         // Create
-        this.teams.push( new Team('Wolf', Math.floor(this.nbPlayer / 2)))
-        this.teams.push( new Team('Squid', Math.floor(this.nbPlayer / 2)))
+        this.teams.push( new Team('Wolf', orgas[0], orgas[1], Math.floor(this.nbPlayer / 2)))
+        this.teams.push( new Team('Squid', orgas[2], orgas[3], Math.floor(this.nbPlayer / 2)))
 
-        if (this.nbPlayer % 2 === 1) this.teams.push( new Team('FBI', 1, 'fbi'))
+        if (this.nbPlayer % 2 === 1) this.teams.push( new Team('FBI', null, null, 1, 'fbi'))
     }
 
     protected createPlayerCardDeck() {
 
-        // Organisation cards
         this.players.forEach(player => {
+
+            // Organisation cards
             const cards = [
-                ...Object.keys(ORGANISATIONS).map(orga => new CardOrganisation(orga as ORGANISATIONS)),
-                ...Object.keys(ORGANISATIONS).map(orga => new CardOrganisation(orga as ORGANISATIONS)),
+                ...Object.values(ORGANISATIONS).map(orga => new CardOrganisation(orga as ORGANISATIONS)),
+                ...Object.values(ORGANISATIONS).map(orga => new CardOrganisation(orga as ORGANISATIONS)),
             ]
             this.shuffleArray(cards)
             player.giveOrganisationCards(cards)
+
+
+
+            // Action cards
+            const actCards: CardAction[] = []
+            ACTIONCARDS.forEach(desc => {
+                for (let i = 0; i < desc.nb; i++) {
+                    actCards.push( new CardAction(desc.type) )
+                }
+            })
+            this.shuffleArray(actCards)
+            player.giveActionCards(actCards)
         })
 
         
-        // Action cards
-        // TODO
     }
 
     protected createPlayers() {
@@ -110,6 +128,8 @@ export default class Game extends Entity {
             }
         })
 
+        this.shuffleArray(vector)
+
         for (let i = 0; i < this.players.length; i++) {
             const team = vector[i]
             team.assign( this.players[i] )
@@ -123,6 +143,52 @@ export default class Game extends Entity {
                 this.board.addnewVisitor(visitor)
             }
         })
+    }
+
+
+    startGame() {
+    
+        this.createPlayerCardDeck()
+        this.dispatchPlayerInTeams()
+        this.players[0].giveSecurityToken()
+
+        this.startTour()
+
+    }
+
+    protected async startTour() {
+        this._currentRound++
+        console.log(`Starting Round ${this._currentRound} of game ${this.uuid}`)
+
+        // Make them draw
+        this.players.forEach(player => player.drawHand() )
+
+        console.log( this.players[0] )
+
+        // Programmation
+        await this.programmationPhase()
+        // Sabotage
+        await this.sabotagePhase()
+        // run actions
+        await this.actionPhase()
+
+
+        // Empty hands
+        this.players.forEach(player => player.emptyHand() )
+
+    }
+
+    protected async programmationPhase() {
+        // TODO
+
+    }
+    protected async sabotagePhase() {
+        // TODO
+        
+    }
+    protected async actionPhase() {
+        // TODO
+
     }
 
 }
