@@ -1,0 +1,65 @@
+{
+  "name": "madcon-back",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "",
+  "main": "./src/index.mts",
+  "scripts": {
+    "show-conf": "ts-node --showConfig",
+    "start": "node build/index.mjs",
+    "build": "tsc",
+    "dev": "nodemon --legacy-watch -e ts,mts --watch ./src --exec \"set HTTPS=true&&npm run build-run\"",
+    "build-run": "tsc && node ./build/index.mjs",
+    "lint": "eslint src/**/*.ts"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "commonjs": false,
+      "es2022": true
+    },
+    "extends": "standard-with-typescript",
+    "overrides": [],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "project": "./tsconfig.json"
+    },
+    "rules": {}
+  },
+  "author": "EasyVista",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/compression": "^1.7.2",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/express": "^4.17.15",
+    "@types/jest": "^29.4.0",
+    "i": "^0.3.7",
+    "nodemon": "^3.0.1",
+    "npm": "^9.2.0",
+    "prettier": "2.8.4",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.9.5",
+    "vitest": "^0.28.5"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.4.2",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.28.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "express": "^4.18.2",
+    "got": "^12.5.3",
+    "helmet": "^6.0.1",
+    "uuid": "^9.0.0",
+    "uuidv4": "^6.2.13",
+    "zod": "^3.20.2"
+  }
+}

@@ -1,0 +1,7 @@
+{
+	"watch": [
+		"./src"
+	],
+	"ext": "ts",
+	"exec": "ts-node-dev --inspect=9229 ./src/index.ts"
+}
