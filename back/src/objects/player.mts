@@ -2,12 +2,10 @@ import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import CardAction from "./cardAction.mjs";
 import CardOrganisation from "./cardOrganisation.mjs";
 import Entity from "./entity.mjs";
+import { HAND_SIZE_ACTION, HAND_SIZE_ORGA, MISSION_LIMIT } from "./game.mjs";
 import Mission from "./mission.mjs";
 import Team from "./team.mjs";
 
-const HAND_SIZE_ACTION = 5
-const HAND_SIZE_ORGA = 5
-const MISSION_LIMIT = 5
 
 export default class Player extends Entity {
 

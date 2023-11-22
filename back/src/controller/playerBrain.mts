@@ -1,10 +1,12 @@
 import Board from "../objects/board.mjs";
 import { ACTIONCARD_TYPE } from "../objects/cardAction.mjs";
 import CardAnimation, { ANIMCARD_TYPE } from "../objects/cardAnimation.mjs";
-import { ORGANISATIONS } from "../objects/game.mjs";
+import { MISSION_LIMIT, ORGANISATIONS } from "../objects/game.mjs";
 import Mission from "../objects/mission.mjs";
 import Player from "../objects/player.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
+import { argument, randomSelectVisitors } from "./actions/argument.mjs";
+import Stats from "./stats.mjs";
 
 export default class PlayerBrain {
 
@@ -13,7 +15,7 @@ export default class PlayerBrain {
      * @param player 
      * @param nbToProgram 
      */
-    static async programMissions(player: Player, nbToProgram: number = 4, method: 'random' = 'random') {
+    static async programMissions(player: Player, nbToProgram: number =  MISSION_LIMIT, method: 'random' = 'random') {
         
         if (method === 'random') {
             
@@ -69,8 +71,8 @@ export default class PlayerBrain {
      * @param mission 
      * @param board 
      */
-    static async execMission(args: {mission: Mission, board: Board, animationCard: CardAnimation}, method: 'random' = 'random') {
-        const {mission, board, animationCard} = args
+    static async execMission(args: {stats: Stats ,mission: Mission, board: Board, animationCard: CardAnimation, player: Player, players: Player[]}, method: 'random' = 'random') {
+        const {mission, board, animationCard, player, players, stats} = args
 
         if (method === 'random') {
             console.log(`        Mission: ${mission.action.type} / ${mission.organisation.organisation}`)
@@ -80,23 +82,58 @@ export default class PlayerBrain {
                 console.log(`        ${CONSOLE_COLOR.blue}Sabotage: ${organisation}${CONSOLE_COLOR.white}`)
             }
                 
-
+            
             switch (mission.action.type) {
                 case ACTIONCARD_TYPE.Arguments:
+                    var howMuch = 2
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch})
+                    visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
+                    stats.push('move','up',visitors.length)
                 break;
-                case ACTIONCARD_TYPE.CounterArgument:
-                break;
-                case ACTIONCARD_TYPE.Goodies:
-                break;
-                case ACTIONCARD_TYPE.Hijacking:
-                break;
-                case ACTIONCARD_TYPE.Investigation:
-                break;
-                case ACTIONCARD_TYPE.MakeDisappear:
-                break;
-                case ACTIONCARD_TYPE.Security:
-                break;
+
                 case ACTIONCARD_TYPE.TargetedArguments:
+                    var visitorsDown = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, orgaOnly: true})
+                    var visitorsUp = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1})
+                    visitorsDown.forEach(visitor => argument({organisation, board, way: 'down', animationCard, visitor, player}) )
+                    visitorsUp.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
+                    stats.push('move','down',visitorsDown.length)
+                    stats.push('move','up',visitorsUp.length)
+                break;
+
+                case ACTIONCARD_TYPE.Goodies:
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2})
+                    visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
+                    visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
+                    stats.push('move','upx2', visitors.length)
+                break;
+
+                case ACTIONCARD_TYPE.Hijacking: // Move left or right
+                    var way: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right'
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, orgaOnly: true})
+                    visitors.forEach(visitor => argument({organisation, board, way, animationCard, visitor, player}) )
+                    stats.push('move',way,visitors.length)
+                break;
+
+                case ACTIONCARD_TYPE.CounterArgument:
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2, orgaOnly: true})
+                    visitors.forEach(visitor => argument({organisation, board, way: 'down', animationCard, visitor, player}) )
+                    stats.push('move','down',visitors.length)
+                break;
+
+                case ACTIONCARD_TYPE.Investigation:
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})
+                    visitors.forEach(v => v.seenBy(player))
+                break;
+
+                case ACTIONCARD_TYPE.MakeDisappear:
+                    var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})
+                    visitors.forEach(visitor => board.removeVisitor(visitor))
+                break;
+
+                case ACTIONCARD_TYPE.Security:
+                    const currentSec = players.find(n => n.hasSecurityToken)
+                    currentSec?.takeSecurityToken()
+                    player.giveSecurityToken()
                 break;
             }
 
@@ -110,7 +147,7 @@ export default class PlayerBrain {
      * @param removeFromArray 
      * @returns 
      */
-    private static pickRandom<T>(array: T[], removeFromArray: boolean = false): T {
+    static pickRandom<T>(array: T[], removeFromArray: boolean = false): T {
         if (array.length === 0 ) throw new Error('Cannot pick, empty array')
 
         const index = Math.floor( Math.random() * array.length )

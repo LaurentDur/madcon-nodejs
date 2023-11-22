@@ -1,4 +1,5 @@
 import PlayerBrain from "../controller/playerBrain.mjs";
+import Stats from "../controller/stats.mjs";
 import { CONSOLE_COLOR, CONSOLE_TEXT } from "../types/consoleColor.mjs";
 import Board from "./board.mjs";
 import CardAction, { ACTIONCARDS } from "./cardAction.mjs";
@@ -10,6 +11,13 @@ import Team from "./team.mjs";
 import Visitor from "./visitor.mjs";
 import { z } from "zod"
 
+export const NB_TURN = 5
+export const MISSION_LIMIT = 5
+export const HAND_SIZE_ACTION = MISSION_LIMIT + 1
+export const HAND_SIZE_ORGA = MISSION_LIMIT + 1
+
+
+
 export enum ORGANISATIONS {
     orga1= "Don Leon",
     orga2= "Los Muertos",
@@ -18,8 +26,9 @@ export enum ORGANISATIONS {
 }
 
 export const VISITORS_DISPATCH = [
-    { value: 2, count: 10, name: "Bad Ass"},
-    { value: -1, count: 15, name: "FBI"},
+    { value: 2, count: 12, name: "Bad Ass"},
+    { value: -1, count: 8, name: "FBI"},
+    { value: -2, count: 5, name: "Bond"},
     { value: 0, count: 5, name: "Looser"},
     { value: 1, count: 20, name: "Vilain"},
 ]
@@ -44,20 +53,29 @@ export default class Game extends Entity {
 
     readonly teams: Team[] = []
 
+    private _stats: Stats
     private _currentRound = 0
     private _currentAnimation?: CardAnimation
 
+    /**
+     * 
+     * @param nbPlayer 
+     */
     constructor(nbPlayer: number) {
         super()
         this.nbPlayer = z.number().min(2).max(7).parse(nbPlayer)
-        
+        this._stats = new Stats()
         // Init game
         this.reset()
     }
 
+    /**
+     * 
+     */
     reset(): void {
         // Reset components
         this.board.reset()
+        this._stats = new Stats()
         this.animationDeck.length = 0
 
         // Init component
@@ -69,6 +87,16 @@ export default class Game extends Entity {
         this._currentRound = 0
     }
 
+    /**
+     * 
+     */
+    get stats() {
+        return this._stats
+    }
+
+    /**
+     * 
+     */
     protected createTeams() {
 
         const orgas = [ORGANISATIONS.orga1, ORGANISATIONS.orga2, ORGANISATIONS.orga3, ORGANISATIONS.orga4]
@@ -85,11 +113,17 @@ export default class Game extends Entity {
         if (this.nbPlayer % 2 === 1) this.teams.push( new Team('FBI', null, null, 1, 'fbi'))
     }
 
+    /**
+     * 
+     */
     protected createAnimationDeck() {
         const cards = Object.values(ANIMCARD_TYPE).map(anim => new CardAnimation(anim as ANIMCARD_TYPE))
         this.animationDeck.push(...cards)
     }
 
+    /**
+     * 
+     */
     protected createPlayerCardDeck() {
 
         this.players.forEach(player => {
@@ -118,6 +152,9 @@ export default class Game extends Entity {
         
     }
 
+    /**
+     * 
+     */
     protected createPlayers() {
         // Clean
         this.players.forEach(p => p.reset())
@@ -132,6 +169,9 @@ export default class Game extends Entity {
         }
     }
 
+    /**
+     * 
+     */
     protected dispatchPlayerInTeams() {
         const vector: Team[] = []
         this.teams.forEach(team => {
@@ -148,6 +188,9 @@ export default class Game extends Entity {
         }
     }
 
+    /**
+     * 
+     */
     protected createVisitors() {
         VISITORS_DISPATCH.forEach(n => {
             for (let i = 0; i < n.count; i++ ) {
@@ -157,6 +200,10 @@ export default class Game extends Entity {
         })
     }
 
+    /**
+     * 
+     * @returns 
+     */
     verbose(): string[] {
         const log: string[] = []
 
@@ -168,10 +215,17 @@ export default class Game extends Entity {
         
         log.push(`Players:`)
         this.players.forEach(p => log.push( ...(p.verbose().map(n => '   '+n))))
+        
+        log.push(`Board:`)
+        log.push( ...(this.board.verbose().map(n => '   '+n)))
 
         return log
     }
 
+    /**
+     * 
+     * @param title 
+     */
     console(title: string) {
         console.log(`${CONSOLE_COLOR.red}>>------------------------------------`)
         console.log('>>---      ' + title)
@@ -181,6 +235,9 @@ export default class Game extends Entity {
         console.log(' ')
     }
 
+    /**
+     * 
+     */
     async startGame() {
 
         console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.startGame}`)
@@ -191,15 +248,53 @@ export default class Game extends Entity {
 
         this.console("Will start tour")
 
-        await this.startTour()
-        await this.startTour()
-        await this.startTour()
-        await this.startTour()
+        for ( let i = 0; i < NB_TURN; i++) {
+            await this.startTour()
+        }
 
-        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.endGame}`)
+        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.endGame}${CONSOLE_COLOR.white}`)
+        return this.countScores()
 
     }
 
+    protected countScores() {
+        const scores: {[k:string]: {count: number, score: number, details: number[], visitors: Visitor[]}} = {}
+        const list = this.board.visitors.filter(v => v.position.where === 'enrolled')
+
+        Object.values(ORGANISATIONS).forEach(o => {
+            scores[o] = {count: 0, score: 0, details: [], visitors: []}
+        })
+
+        list.forEach(visitor => {
+            const key = visitor.position.orga || 'ns'
+            scores[key].count++
+            scores[key].score += visitor.value
+            scores[key].details.push(visitor.value)
+            scores[key].visitors.push(visitor)
+        })
+
+        const teams: {team: string, players: string[], score: number }[] = []
+        this.teams.forEach(team => {
+
+            if (team.type === "recruiter") {
+                const teamScore = scores[team.orgaA || ''].score + scores[team.orgaB || ''].score
+                const obj = {team: team.name, players: team.players.map(p => p.name), score: teamScore }
+                teams.push( obj )
+            } else if (team.type === 'fbi') {
+                let teamScore = 0
+                list.filter(v => v.value < 0).forEach(v => {
+                    teamScore += v.value
+                })
+                teams.push( {team: team.name, players: team.players.map(p => p.name), score: -1 * teamScore } )
+            }
+        })
+
+        return {scores, teams}
+    }
+
+    /**
+     * 
+     */
     protected async startTour() {
         this._currentRound++
         console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.newTour}`)
@@ -262,10 +357,15 @@ export default class Game extends Entity {
                 console.log(`    Current player ${CONSOLE_COLOR.yellow}${player.name}${CONSOLE_COLOR.white}`)
                 const playerMission = missions[0]
                 await PlayerBrain.execMission({
+                    player, 
+                    players: this.players,
                     mission: playerMission,
                     board: this.board,
-                    animationCard: this._currentAnimation as CardAnimation
+                    animationCard: this._currentAnimation as CardAnimation,
+                    stats: this._stats
                 })
+                this._stats.push('action', playerMission.action.type)
+                this._stats.push('organisation', playerMission.finalOrganisaiton)
     
                 // Set this mission as executed
                 playerMission.setExecuted()

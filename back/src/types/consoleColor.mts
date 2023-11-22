@@ -12,6 +12,7 @@ export const CONSOLE_COLOR = {
     gris: `\x1B[90m`,
     white: `\x1B[37m`,
     yellow: `\x1B[33m`,
+    green: `\x1B[32m`,
 }
 
 

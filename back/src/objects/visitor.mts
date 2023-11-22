@@ -3,6 +3,7 @@ import Entity from "./entity.mjs";
 import { ORGANISATIONS } from "./game.mjs";
 import Player from "./player.mjs";
 
+type IWhere = 'queue' | 'entrance' | 'organisation' | 'enrolled'
 
 export default class Visitor extends Entity {
 
@@ -12,7 +13,7 @@ export default class Visitor extends Entity {
 
     private _invitedBy?: Player
     private _board?: Board
-    private _position: { where: 'queue' | 'entrance' | 'organisation', orga?: ORGANISATIONS, steps?: number} = { where: 'queue'}
+    private _position: { where: IWhere, orga?: ORGANISATIONS, steps?: number} = { where: 'queue'}
 
     constructor(name: string, value: number) {
         super()
@@ -21,8 +22,18 @@ export default class Visitor extends Entity {
         this.value = value
     }
 
+    get position() {
+        return this._position
+    }
+
     get invitedByPlayer() {
         return this._invitedBy
+    }
+
+    setPosition(where: IWhere, orga?: ORGANISATIONS, steps?: number) {
+        this._position.where = where
+        this._position.orga = orga
+        this._position.steps = steps
     }
 
     place(board: Board) {
@@ -32,6 +43,7 @@ export default class Visitor extends Entity {
 
     invitedBy(player: Player) {
         this._invitedBy = player
+        this.seenBy(player)
     }
 
     seenBy(player: Player) {
