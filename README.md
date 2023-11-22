@@ -42,7 +42,7 @@
 | Card  | Effect    |
 |-----|-------|
 | Faux semblant  | Chaque joueur peut remplacer un jeton visiteur non recruté par un jeton de la file d'attente. (Il peut regarder le pion qu'il prend de la file d'attente) | 
-| Foule  | Les mouvements sont difficiles, tous les +/- 2 sont considérés comme des +/- 1 durant cette journée | 
+| - Foule  | Les mouvements sont difficiles, tous les +/- 2 sont considérés comme des +/- 1 durant cette journée | 
 | Alarme incendie  | A la fin de la journée, tous les visiteurs non recrutés du salon recule de 1. S'ils sont dans l'entrée, ils ne bougent pas. |
 | Super Goodies | A la fin de la journée, tous les visiteurs du salon avance de 1 | 
 | Goodies sur votre gauche | A la fin de la journée, tous les visiteurs du salon se déplace de 1 vers la gauche | 
@@ -54,8 +54,8 @@
 | A l'arrache | Ne piochez pas de carte action supplémentaire. Piochez autant de carte que de créneaux disponibles. | 
 | Espionnage | Pendant la programmation de la journée, ne rendez visible que les cartes actions. Toutes les cartes organisations doivent être masquées. | 
 | Conférence exceptionnelle | Pendant cette journée, le dernier créneau horaire n'est pas disponible. (vous devez donc programmer une mission de moins que prévue) | 
-| Parano | Pendant cette journée, vous ne pouvez pas saboter les actions des autres joueurs | 
-| Voisin-Ami | Chaque joueur doit poser sa dernière carte organisation sur une action du joueur à sa gauche. Même si ce dernier a les faveurs de la sécurité | 
+| - Parano | Pendant cette journée, vous ne pouvez pas saboter les actions des autres joueurs | 
+| - Voisin-Ami | Chaque joueur doit poser sa dernière carte organisation sur une action du joueur à sa gauche. Même si ce dernier a les faveurs de la sécurité | 
 
 ### Action Cards
 

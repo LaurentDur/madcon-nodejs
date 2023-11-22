@@ -1,5 +1,5 @@
+import { ORGANISATIONS } from "../settings/gameSettings.mjs";
 import Entity from "./entity.mjs";
-import { ORGANISATIONS } from "./game.mjs";
 import Player from "./player.mjs";
 
 export default class Team extends Entity {

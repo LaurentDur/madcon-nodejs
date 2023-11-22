@@ -1,6 +1,6 @@
+import { ORGANISATIONS } from "../settings/gameSettings.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import Entity from "./entity.mjs";
-import { ORGANISATIONS } from "./game.mjs";
 import Player from "./player.mjs";
 import Visitor from "./visitor.mjs";
 

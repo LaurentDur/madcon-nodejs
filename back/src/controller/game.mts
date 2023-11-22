@@ -1,47 +1,16 @@
 import PlayerBrain from "../controller/playerBrain.mjs";
 import Stats from "../controller/stats.mjs";
 import { CONSOLE_COLOR, CONSOLE_TEXT } from "../types/consoleColor.mjs";
-import Board from "./board.mjs";
-import CardAction, { ACTIONCARDS } from "./cardAction.mjs";
-import CardAnimation, { ANIMCARD_TYPE } from "./cardAnimation.mjs";
-import CardOrganisation from "./cardOrganisation.mjs";
-import Entity from "./entity.mjs";
-import Player from "./player.mjs";
-import Team from "./team.mjs";
-import Visitor from "./visitor.mjs";
+import Board from "../objects/board.mjs";
+import CardAction, { ACTIONCARDS } from "../objects/cardAction.mjs";
+import CardAnimation, { ANIMCARD_TYPE } from "../objects/cardAnimation.mjs";
+import CardOrganisation from "../objects/cardOrganisation.mjs";
+import Entity from "../objects/entity.mjs";
+import Player from "../objects/player.mjs";
+import Team from "../objects/team.mjs";
+import Visitor from "../objects/visitor.mjs";
 import { z } from "zod"
-
-export const NB_TURN = 5
-export const MISSION_LIMIT = 5
-export const HAND_SIZE_ACTION = MISSION_LIMIT + 1
-export const HAND_SIZE_ORGA = MISSION_LIMIT + 1
-
-
-
-export enum ORGANISATIONS {
-    orga1= "Don Leon",
-    orga2= "Los Muertos",
-    orga3= "торговец",
-    orga4= "ハッカー",
-}
-
-export const VISITORS_DISPATCH = [
-    { value: 2, count: 12, name: "Bad Ass"},
-    { value: -1, count: 8, name: "FBI"},
-    { value: -2, count: 5, name: "Bond"},
-    { value: 0, count: 5, name: "Looser"},
-    { value: 1, count: 20, name: "Vilain"},
-]
-
-export enum PLAYER_NAMES {
-    "John",
-    "Annie",
-    "Larry",
-    "Jenny",
-    "William",
-    "Greg",
-    "Mary",
-}
+import { NB_TURN, ORGANISATIONS, PLAYER_NAMES, VISITORS_DISPATCH } from "../settings/gameSettings.mjs";
 
 
 export default class Game extends Entity {
@@ -314,8 +283,10 @@ export default class Game extends Entity {
         this.console("After Programmation")
 
         // Sabotage
-        await this.sabotagePhase()
-        this.console("After Sabotage")
+        if (this._currentAnimation?.type !== ANIMCARD_TYPE.Paranoia) {
+            await this.sabotagePhase()
+            this.console("After Sabotage")
+        }
 
         // run actions
         await this.actionPhase()

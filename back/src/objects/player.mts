@@ -1,8 +1,8 @@
+import { HAND_SIZE_ACTION, HAND_SIZE_ORGA, MISSION_LIMIT } from "../settings/gameSettings.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import CardAction from "./cardAction.mjs";
 import CardOrganisation from "./cardOrganisation.mjs";
 import Entity from "./entity.mjs";
-import { HAND_SIZE_ACTION, HAND_SIZE_ORGA, MISSION_LIMIT } from "./game.mjs";
 import Mission from "./mission.mjs";
 import Team from "./team.mjs";
 

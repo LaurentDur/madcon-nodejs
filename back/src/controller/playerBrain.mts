@@ -1,9 +1,9 @@
 import Board from "../objects/board.mjs";
 import { ACTIONCARD_TYPE } from "../objects/cardAction.mjs";
 import CardAnimation, { ANIMCARD_TYPE } from "../objects/cardAnimation.mjs";
-import { MISSION_LIMIT, ORGANISATIONS } from "../objects/game.mjs";
 import Mission from "../objects/mission.mjs";
 import Player from "../objects/player.mjs";
+import { MISSION_LIMIT, ORGANISATIONS } from "../settings/gameSettings.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import { argument, randomSelectVisitors } from "./actions/argument.mjs";
 import Stats from "./stats.mjs";
@@ -103,8 +103,13 @@ export default class PlayerBrain {
                 case ACTIONCARD_TYPE.Goodies:
                     var visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2})
                     visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
-                    visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
-                    stats.push('move','upx2', visitors.length)
+                    
+                    if (animationCard.type !== ANIMCARD_TYPE.Crowd) {
+                        visitors.forEach(visitor => argument({organisation, board, way: 'up', animationCard, visitor, player}) )
+                        stats.push('move','upx2', visitors.length)
+                    } else {
+                        stats.push('move','up', visitors.length)
+                    }
                 break;
 
                 case ACTIONCARD_TYPE.Hijacking: // Move left or right

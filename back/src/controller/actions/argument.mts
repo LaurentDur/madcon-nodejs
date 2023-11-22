@@ -1,8 +1,8 @@
 import Board from "../../objects/board.mjs"
 import CardAnimation from "../../objects/cardAnimation.mjs"
-import { ORGANISATIONS } from "../../objects/game.mjs"
 import Player from "../../objects/player.mjs"
 import Visitor from "../../objects/visitor.mjs"
+import { ORGANISATIONS } from "../../settings/gameSettings.mjs"
 import PlayerBrain from "../playerBrain.mjs"
 
 

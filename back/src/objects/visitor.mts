@@ -1,6 +1,6 @@
+import { ORGANISATIONS } from "../settings/gameSettings.mjs";
 import Board from "./board.mjs";
 import Entity from "./entity.mjs";
-import { ORGANISATIONS } from "./game.mjs";
 import Player from "./player.mjs";
 
 type IWhere = 'queue' | 'entrance' | 'organisation' | 'enrolled'

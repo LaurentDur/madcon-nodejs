@@ -1,4 +1,4 @@
-import Game from "./objects/game.mjs";
+import Game from "./controller/game.mjs";
 import { CONSOLE_COLOR } from "./types/consoleColor.mjs";
 
 console.log(`${CONSOLE_COLOR.blue}
