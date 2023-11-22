@@ -1,7 +1,7 @@
-import Entity from "./entity.mjs";
+import Card from "./card.mjs";
 import { ORGANISATIONS } from "./game.mjs";
 
-export default class CardOrganisation extends Entity {
+export default class CardOrganisation extends Card {
 
     readonly organisation: ORGANISATIONS
 

@@ -1,4 +1,4 @@
-import Entity from "./entity.mjs"
+import Card from "./card.mjs"
 
 
 export enum ACTIONCARD_TYPE {
@@ -23,7 +23,7 @@ export const ACTIONCARDS = [
     {type: ACTIONCARD_TYPE.Security, nb: 1},
 ]
 
-export default class CardAction extends Entity {
+export default class CardAction extends Card {
 
     readonly type: ACTIONCARD_TYPE
 

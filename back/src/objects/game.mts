@@ -1,5 +1,8 @@
+import PlayerBrain from "../controller/playerBrain.mjs";
+import { CONSOLE_COLOR, CONSOLE_TEXT } from "../types/consoleColor.mjs";
 import Board from "./board.mjs";
 import CardAction, { ACTIONCARDS } from "./cardAction.mjs";
+import CardAnimation, { ANIMCARD_TYPE } from "./cardAnimation.mjs";
 import CardOrganisation from "./cardOrganisation.mjs";
 import Entity from "./entity.mjs";
 import Player from "./player.mjs";
@@ -37,10 +40,12 @@ export default class Game extends Entity {
     readonly board:Board = new Board()
     readonly nbPlayer: number
     readonly players: Player[] = []
+    readonly animationDeck: CardAnimation[] = []
 
     readonly teams: Team[] = []
 
     private _currentRound = 0
+    private _currentAnimation?: CardAnimation
 
     constructor(nbPlayer: number) {
         super()
@@ -53,8 +58,10 @@ export default class Game extends Entity {
     reset(): void {
         // Reset components
         this.board.reset()
+        this.animationDeck.length = 0
 
         // Init component
+        this.createAnimationDeck()
         this.createTeams()
         this.createVisitors()
         this.createPlayers()
@@ -76,6 +83,11 @@ export default class Game extends Entity {
         this.teams.push( new Team('Squid', orgas[2], orgas[3], Math.floor(this.nbPlayer / 2)))
 
         if (this.nbPlayer % 2 === 1) this.teams.push( new Team('FBI', null, null, 1, 'fbi'))
+    }
+
+    protected createAnimationDeck() {
+        const cards = Object.values(ANIMCARD_TYPE).map(anim => new CardAnimation(anim as ANIMCARD_TYPE))
+        this.animationDeck.push(...cards)
     }
 
     protected createPlayerCardDeck() {
@@ -145,50 +157,130 @@ export default class Game extends Entity {
         })
     }
 
+    verbose(): string[] {
+        const log: string[] = []
 
-    startGame() {
+        log.push(`Party ID: ${this.uuid}`)
+        log.push(`They are in round ${this._currentRound}`)
+        log.push(`${this.animationDeck.length} cards in aniamtion deck`)
+        log.push(`Current animation ${CONSOLE_COLOR.yellow}${this._currentAnimation?.type}${CONSOLE_COLOR.white}`)
+        log.push(`${this.players.length} players in game ( ${this.players.map(n => n.name).join(', ')} )`)
+        
+        log.push(`Players:`)
+        this.players.forEach(p => log.push( ...(p.verbose().map(n => '   '+n))))
+
+        return log
+    }
+
+    console(title: string) {
+        console.log(`${CONSOLE_COLOR.red}>>------------------------------------`)
+        console.log('>>---      ' + title)
+        console.log(`>>------------------------------------${CONSOLE_COLOR.white}`)
+        this.verbose().forEach(n => console.log(n))
+        console.log(`${CONSOLE_COLOR.red}-<<------------------------------------${CONSOLE_COLOR.white}`)
+        console.log(' ')
+    }
+
+    async startGame() {
+
+        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.startGame}`)
     
         this.createPlayerCardDeck()
         this.dispatchPlayerInTeams()
         this.players[0].giveSecurityToken()
 
-        this.startTour()
+        this.console("Will start tour")
+
+        await this.startTour()
+        await this.startTour()
+        await this.startTour()
+        await this.startTour()
+
+        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.endGame}`)
 
     }
 
     protected async startTour() {
         this._currentRound++
-        console.log(`Starting Round ${this._currentRound} of game ${this.uuid}`)
-
+        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.newTour}`)
+        console.log(`Starting Round ${this._currentRound} of game ${this.uuid}${CONSOLE_COLOR.white}`)
+        
+        // Pick new anim card
+        this.pickAnimCard()
+        
         // Make them draw
         this.players.forEach(player => player.drawHand() )
+        this.console("After Draw") 
 
-        console.log( this.players[0] )
+
 
         // Programmation
         await this.programmationPhase()
+        this.console("After Programmation")
+
         // Sabotage
         await this.sabotagePhase()
+        this.console("After Sabotage")
+
         // run actions
         await this.actionPhase()
 
 
         // Empty hands
         this.players.forEach(player => player.emptyHand() )
+        // Empty mission
+        this.players.forEach(player => player.emptyMission() )
+        this.console("After Tour")
+
+
+
 
     }
 
+    protected async pickAnimCard() {
+        this._currentAnimation = this.pickRandom(this.animationDeck, true)
+    }
     protected async programmationPhase() {
-        // TODO
-
+        await Promise.all(
+            this.players.map(player => PlayerBrain.programMissions(player))
+        )
     }
     protected async sabotagePhase() {
-        // TODO
-        
+        await Promise.all(
+            this.players.map(player => PlayerBrain.sabotage({player, allPlayers: this.players, animationCard: this._currentAnimation as CardAnimation}))
+        )
     }
     protected async actionPhase() {
-        // TODO
 
+        let player = this.players.find(n => n.hasSecurityToken)
+        if (!player) throw new Error('No player has the Security token')
+
+        let stop = false
+        while (!stop) {
+            const missions = player.mission.filter(n => !n.executed)
+            if (missions.length > 0) {
+                console.log(`    Current player ${CONSOLE_COLOR.yellow}${player.name}${CONSOLE_COLOR.white}`)
+                const playerMission = missions[0]
+                await PlayerBrain.execMission({
+                    mission: playerMission,
+                    board: this.board,
+                    animationCard: this._currentAnimation as CardAnimation
+                })
+    
+                // Set this mission as executed
+                playerMission.setExecuted()
+    
+                // get next player 
+                player = PlayerBrain.getNextPlayer(player, this.players)
+            } else {
+                // All missions have been executed
+                stop = true;
+            }
+        }
+        
+        console.log(" ")
+        console.log("    All Actions are done !")
+        
     }
 
 }
