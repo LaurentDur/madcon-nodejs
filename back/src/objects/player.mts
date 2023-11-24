@@ -6,12 +6,14 @@ import Entity from "./entity.mjs";
 import Mission from "./mission.mjs";
 import Team from "./team.mjs";
 
+type IType = 'random' | 'console'
 
 export default class Player extends Entity {
 
-    readonly name: string
+    protected _name: string
     private _team?: Team
     private _hasSecurityToken: boolean = false
+    readonly type:IType 
 
     private _deck_organisation: CardOrganisation[] = []
     private _deck_action: CardAction[] = []
@@ -21,13 +23,18 @@ export default class Player extends Entity {
 
     private _missions: Mission[] = []
 
-    constructor(name: string) {
+    constructor(name: string, type:IType = 'random' ) {
         super()
-        this.name = name
+        this.type = type
+        this._name = name
     }
 
     get hasSecurityToken() {
         return this._hasSecurityToken
+    }
+
+    get name() {
+        return this._name
     }
 
     get team() {

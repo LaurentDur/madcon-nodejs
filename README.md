@@ -76,6 +76,7 @@
 - Tous les visiteurs sont mis sur la plateau dans la file d'attente
 - On désigne un premier joueur qui prend le jeton sécurité
 - Chaque joueur reçoit une carte équipe
+- Chaque joueur invite ajoute un visiteur (2 pour une partie à 3 joueurs ou moins)
 
 ## Tour de jeu
 
@@ -119,6 +120,7 @@ La partie se déroule sur 4 journée.
 # Variante à 2 ou 3 joueurs, ou mode chacun pour soit
 
 - On ne distribue pas les équipes.
+- A la mise en place, les joueurs acceuillent 2 visiteur au lieu d'un
 - A la fin de la partie, chaque joueur classe les organisation par ordre décroissante.
 - Point à gagner : 5 (si le 1 est bon), 3 (si le 2 est bon), 2 (si le 3 est bon), 1 (si le 4 est bon) 
 

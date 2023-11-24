@@ -1,4 +1,5 @@
 import { ORGANISATIONS } from "../settings/gameSettings.mjs";
+import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import Board from "./board.mjs";
 import Entity from "./entity.mjs";
 import Player from "./player.mjs";
@@ -44,6 +45,9 @@ export default class Visitor extends Entity {
     invitedBy(player: Player) {
         this._invitedBy = player
         this.seenBy(player)
+        if (player.type === 'console') {
+            console.log(`${CONSOLE_COLOR.green}You have welcomed visitor ${this.uuid} : ${this.name} (${this.value})${CONSOLE_COLOR.white}`)
+        }
     }
 
     seenBy(player: Player) {

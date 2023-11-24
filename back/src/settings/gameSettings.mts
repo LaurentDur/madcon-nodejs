@@ -1,4 +1,5 @@
 
+export const NB_STEPS = 4
 export const NB_TURN = 5
 export const MISSION_LIMIT = 5
 export const HAND_SIZE_ACTION = MISSION_LIMIT + 1

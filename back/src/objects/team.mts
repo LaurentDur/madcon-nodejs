@@ -1,4 +1,5 @@
 import { ORGANISATIONS } from "../settings/gameSettings.mjs";
+import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import Entity from "./entity.mjs";
 import Player from "./player.mjs";
 
@@ -30,6 +31,13 @@ export default class Team extends Entity {
     assign(player: Player) {
         this.players.push(player)
         player.setTeam(this)
+        
+        if (player.type === 'console') {
+            console.log(`${CONSOLE_COLOR.green}${player.name}, you are in the Team ${this.name}${CONSOLE_COLOR.white}`)
+            if (this.type === 'recruiter') {
+                console.log(`${CONSOLE_COLOR.green}Your organisations are ${this.orgaA} and ${this.orgaB}${CONSOLE_COLOR.white}`)
+            }
+        }
     }
 
 

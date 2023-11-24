@@ -1,11 +1,10 @@
-import { ORGANISATIONS } from "../settings/gameSettings.mjs";
+import { NB_STEPS, ORGANISATIONS } from "../settings/gameSettings.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
 import Entity from "./entity.mjs";
 import Player from "./player.mjs";
 import Visitor from "./visitor.mjs";
 
 
-const NB_STEPS = 5
 
 export default class Board extends Entity {
 

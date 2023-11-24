@@ -11,12 +11,14 @@ import Team from "../objects/team.mjs";
 import Visitor from "../objects/visitor.mjs";
 import { z } from "zod"
 import { NB_TURN, ORGANISATIONS, PLAYER_NAMES, VISITORS_DISPATCH } from "../settings/gameSettings.mjs";
+import PlayerConsole from "../objects/playerConsole.mjs";
 
 
 export default class Game extends Entity {
 
     readonly board:Board = new Board()
     readonly nbPlayer: number
+    readonly consolePlayer: boolean
     readonly players: Player[] = []
     readonly animationDeck: CardAnimation[] = []
 
@@ -30,18 +32,22 @@ export default class Game extends Entity {
      * 
      * @param nbPlayer 
      */
-    constructor(nbPlayer: number) {
+    constructor(nbPlayer: number, consolePlayer: boolean = false) {
         super()
         this.nbPlayer = z.number().min(2).max(7).parse(nbPlayer)
         this._stats = new Stats()
+        this.consolePlayer = consolePlayer
+    }
+
+    async init() {
         // Init game
-        this.reset()
+        await this.reset()
     }
 
     /**
      * 
      */
-    reset(): void {
+    async reset() {
         // Reset components
         this.board.reset()
         this._stats = new Stats()
@@ -51,7 +57,7 @@ export default class Game extends Entity {
         this.createAnimationDeck()
         this.createTeams()
         this.createVisitors()
-        this.createPlayers()
+        await this.createPlayers()
 
         this._currentRound = 0
     }
@@ -124,7 +130,7 @@ export default class Game extends Entity {
     /**
      * 
      */
-    protected createPlayers() {
+    protected async createPlayers() {
         // Clean
         this.players.forEach(p => p.reset())
         this.players.length = 0
@@ -132,7 +138,15 @@ export default class Game extends Entity {
         // Create
         const names = Object.values(PLAYER_NAMES) as string[]
 
-        for (let i = 0; i < this.nbPlayer && i < names.length; i++ ) {
+        let startI = 0
+        if (this.consolePlayer) {
+            const u = new PlayerConsole()
+            this.players.push(u)
+            await u.chooseName()
+            startI = 1
+        } 
+
+        for (let i = startI; i < this.nbPlayer && i < names.length; i++ ) {
             const player = new Player(names[i])
             this.players.push(player)
         }
@@ -213,9 +227,12 @@ export default class Game extends Entity {
     
         this.createPlayerCardDeck()
         this.dispatchPlayerInTeams()
-        this.players[0].giveSecurityToken()
+        PlayerBrain.pickRandom(this.players).giveSecurityToken()
+        await this.inviteFirstVisitors()
 
-        this.console("Will start tour")
+        if (this.nbPlayer < 4) await this.inviteFirstVisitors()
+
+        // this.console("Will start tour")
 
         for ( let i = 0; i < NB_TURN; i++) {
             await this.startTour()
@@ -259,6 +276,15 @@ export default class Game extends Entity {
         })
 
         return {scores, teams}
+    }
+
+    protected async inviteFirstVisitors() {
+
+        this.players.forEach(player => {
+            const visitor = PlayerBrain.pickRandom(this.board.visitors.filter(v => v.position.where === 'queue'))
+            this.board.move({visitor, way: 'up', player})
+        })
+        
     }
 
     /**
@@ -312,9 +338,14 @@ export default class Game extends Entity {
         )
     }
     protected async sabotagePhase() {
-        await Promise.all(
-            this.players.map(player => PlayerBrain.sabotage({player, allPlayers: this.players, animationCard: this._currentAnimation as CardAnimation}))
-        )
+
+        let player = this.players.find(n => n.hasSecurityToken)
+        if (player) {
+            for (let i = 0; i < this.players.length; i++) {
+                await PlayerBrain.sabotage({player, allPlayers: this.players, animationCard: this._currentAnimation as CardAnimation})
+                player = PlayerBrain.getNextPlayer(player, this.players)
+            }
+        }
     }
     protected async actionPhase() {
 
