@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.scss';
+import Board from './components/Board';
 
 function App() {
 
@@ -8,6 +9,7 @@ function App() {
       <header className="App-header">
 
         Hey !!
+        <Board uuid='xxx'/>
 
       </header>
     </div>
