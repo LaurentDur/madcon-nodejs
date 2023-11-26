@@ -1,0 +1,23 @@
+.Mission {
+    display: inline-flex;
+    position: relative;
+    padding: 0.3rem 1.3rem 1.3rem 0.3rem;
+    border: 1px dashed lightgray;
+    border-radius: 5px;
+
+    min-width: 9rem;
+    min-height: 10rem;
+
+    .topCard {
+        transform: rotate(5deg);
+        position: relative;
+        z-index: 100;
+    }
+    .bottomCard {
+        transform: rotate(-5deg);
+        position: absolute;
+        z-index: 50;
+        left: 1rem;
+        top: 1rem;
+    }
+}

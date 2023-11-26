@@ -5,6 +5,7 @@ import { IGameContext } from '../types/IGameContext';
 
 type IProps = {
     uuid: string,
+    steps: number,
 }
 
 function Board(props: IProps) {
@@ -12,30 +13,43 @@ function Board(props: IProps) {
     const [xxx, setXXXX] = useState(3)
     const [game, setGame] = useState<IGameContext>(gameData)
 
-    console.log(game)
-
     return (
         <GameContext.Provider value={game}>
             <div className="Board">
                 Board of {game.uuid} {xxx}
 
-                <button onClick={() => {
-                    const newGame = Object.assign({},game)
-                    newGame.uuid = "Bonjour !"
-                    if (newGame.visibleVisitors.length === 0 ) newGame.visibleVisitors.push('x3')
-                    else newGame.visibleVisitors.length = 0
-                    newGame.selectableVisitors.push('x3')
-                    setGame(newGame)
-                    // setXXXX(9)
-                    // console.log(game)
-                }}>Test !!!</button>
+                <div className='orgaCells'>
+                    {
+                        game.organisations.map(orga => {
+                            return (<div>
+                                <p>{orga}</p>
+                                <div className='steps'>
+                                    {[...Array(props.steps).keys()].map((x,i) => <div className='step'>
+                                        <p>{i}</p>
+                                        <div>
+                                            <Visitor uuid='x2' playerColor='green' value={-1}/>
+                                        </div>
+                                    </div>)}                                
+                                </div>
+                            </div>)
+                        })
+                    }
+                </div>
 
-                <Visitor uuid='x1' playerColor='red' value={1}/>
-                <Visitor uuid='x2' playerColor='green' value={-1}/>
-                <Visitor uuid='x3' playerColor='red' value={2}/>
+                <div className='entrance'>
+                    <Visitor uuid='x1' playerColor='red' value={1}/>
+                    <Visitor uuid='x3' playerColor='red' value={2}/>
+                </div>
+
+
             </div>
         </GameContext.Provider>
     )
 
 }
+
+
+Board.defaultProps = {
+    steps: 5
+};
 export default Board;

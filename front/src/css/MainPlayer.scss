@@ -1,0 +1,24 @@
+.MainPlayer {
+    border: 1px solid red;
+    
+    .missions {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .hand {
+        .cards {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            gap: 4rem;
+    
+            &>div {
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+        }
+    }
+}
