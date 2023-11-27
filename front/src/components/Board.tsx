@@ -6,7 +6,6 @@ import BackInterface from '../connector/BackInterface';
 
 type IProps = {
     uuid: string,
-    steps: number,
 }
 
 const connector = new BackInterface()
@@ -27,7 +26,7 @@ function Board(props: IProps) {
                         return (<div>
                             <p>{orga}</p>
                             <div className='steps'>
-                                {[...Array(props.steps).keys()].map((x,i) => <div className='step'>
+                                {[...Array(gameContext.nbSteps).keys()].map((x,i) => <div className='step'>
                                     <p>{i}</p>
                                     <div>
                                     </div>
@@ -52,8 +51,4 @@ function Board(props: IProps) {
 
 }
 
-
-Board.defaultProps = {
-    steps: 5
-};
 export default Board;

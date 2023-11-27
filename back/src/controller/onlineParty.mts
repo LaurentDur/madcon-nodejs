@@ -15,7 +15,7 @@ export default {
      */
     async getGame(socket: Socket) {
         if (gameList.length === 0) {
-            var game = new Game(3, {frontPlayer: true})
+            var game = new Game(4, {frontPlayer: true})
 
             Object.values(GameEvents).forEach( evn => {
                 game.addEventListener(evn as GameEvents, this.onGameEvent)
@@ -59,6 +59,7 @@ export default {
         
         const ctx = {
             uuid: game.uuid,
+            nbSteps: game.board.maxSteps,
             currentPlayer: player?.uuid,
             organisations: Object.values(ORGANISATIONS),
             selectableCards: [],

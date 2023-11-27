@@ -8,6 +8,10 @@
     min-width: 9rem;
     min-height: 10rem;
 
+    &.selectable {
+        @extend .selectableModel
+    }
+
     .topCard {
         transform: rotate(5deg);
         position: relative;

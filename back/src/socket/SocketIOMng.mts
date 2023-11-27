@@ -5,7 +5,10 @@ import PlayerFront from '../objects/playerFront.mjs';
 import Game from '../controller/game.mjs';
 
 export enum SocketReceived {
-    handshake = 'handshake'
+    handshake = 'handshake',
+    cardSelected = 'cardSelected',
+    visitorSelected = 'visitorSelected',
+    missionSelected = 'missionSelected',
 }
 
 export enum SocketSend {
@@ -88,8 +91,13 @@ export default class SocketIOMng {
      * @param event 
      * @param callback 
      */
-    addListner(event: SocketReceived, callback: (event: SocketReceived, message: any, socket: Socket) => void  ) {
+    addListener(event: SocketReceived, callback: (event: SocketReceived, message: any, socket: Socket) => void  ): () => void {
         this.listeners.push( {event, callback})
+
+        return () => {
+            const ndx = this.listeners.findIndex( n => n.callback === callback)
+            if (ndx >=0 ) this.listeners.splice(ndx, 1)
+        }
     }
 
 }

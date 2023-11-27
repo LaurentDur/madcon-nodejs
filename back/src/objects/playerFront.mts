@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import Player from "./player.mjs";
-import { SocketSend } from "../socket/SocketIOMng.mjs";
+import { SocketReceived, SocketSend } from "../socket/SocketIOMng.mjs";
 
 export default class PlayerFront extends Player {
 
@@ -8,7 +8,6 @@ export default class PlayerFront extends Player {
 
     constructor(color: string) {
         super("NS", color, 'front')
-        
     }
 
     get socket(): Socket | undefined {
@@ -19,19 +18,26 @@ export default class PlayerFront extends Player {
         this._socket = socket
     }
     
-    async chooseName() {
-        const name = await this.ask("What is your name?")
-        this._name = name
-        console.log(`Hello ${name}!`)
-    }
 
-    async ask(question: string, context?: string) {
+    async ask(question: string, objects: {[k:string]: string[]}) {
         return new Promise<string>((resolve, reject) => {
 
             if (this._socket) {
                 this._socket.emit(SocketSend.ask, {
                     question,
-                    context
+                    objects
+                })
+                let event: SocketReceived
+                if (objects.card !== undefined) event =  SocketReceived.cardSelected
+                else if (objects.mission !== undefined) event =  SocketReceived.missionSelected
+                else event =  SocketReceived.visitorSelected
+
+                const removeA = socketManager.addListener(event, (event: SocketReceived, data: any, socket: Socket) => {
+                    // console.log(event, data)
+                    if (data.player === this.uuid) {
+                        resolve(data.uuid)
+                        removeA()
+                    }
                 })
             }
 

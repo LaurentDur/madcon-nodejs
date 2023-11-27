@@ -22,7 +22,12 @@ function MainPlayer(props: IProps) {
     return (
         <div className={cls.join(' ')}>
             <div className='missions'>
-
+                {
+                    player.mission.map(m => <Mission uuid={m.uuid} key={m.uuid} visibleCard={m.visible} 
+                        action={<Card uuid={m.action.uuid} type='action' action={m.action.action} forceVisible={m.visible === 'action'}/>}
+                        orga={<Card uuid={m.orga.uuid} type='organisation' action={m.orga.organisation} forceVisible={m.visible !== 'action'}/>}
+                        />)
+                }
 
             </div>
 

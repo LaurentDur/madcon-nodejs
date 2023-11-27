@@ -1,6 +1,7 @@
 import Board from "../objects/board.mjs";
-import { ACTIONCARD_TYPE } from "../objects/cardAction.mjs";
+import CardAction, { ACTIONCARD_TYPE } from "../objects/cardAction.mjs";
 import CardAnimation, { ANIMCARD_TYPE } from "../objects/cardAnimation.mjs";
+import CardOrganisation from "../objects/cardOrganisation.mjs";
 import Mission from "../objects/mission.mjs";
 import Player from "../objects/player.mjs";
 import PlayerConsole from "../objects/playerConsole.mjs";
@@ -18,24 +19,14 @@ export default class PlayerBrain {
      * @param player 
      * @param nbToProgram 
      */
-    static async programMissions(player: Player, nbToProgram: number =  MISSION_LIMIT, method: 'random' = 'random') {
-        
-        if (player.type === 'random') {
-            
-            for (let i = 0; i < nbToProgram; i++) {
-                const action = this.pickRandom(player.actionHand)
-                const orga = this.pickRandom(player.organisationHand)
-    
-                const visible: 'organisaton' | 'action' = Math.random() < 0.5 ? 'organisaton' : 'action'
-                const mission = new Mission(action, orga, player, visible)
-                player.addMission(mission)
-            }
-        } else if ( PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+    static async programMissions(player: Player, onSelection?: () => void) {
+        const nbToProgram = MISSION_LIMIT
+        if ( PlayerConsole.isPlayerConsole(player)) {
 
             for( let i = 0; i < nbToProgram; i++) {
                 const actions = player.actionHand.map( (n,i) => `${i}:${n.type}`)
                 const orgas = player.organisationHand.map( (n,i) => `${i}:${n.organisation}`)
-                const actionNdx = await player.ask("Select an action", ['Actions:', actions.join(' ,  '), 'Orga:', orgas.join(' ,  ')].join('\n'))
+                const actionNdx = await player.ask("Select an action",['Actions:', actions.join(' ,  '), 'Orga:', orgas.join(' ,  ')].join('\n'))
                 const action = player.actionHand[parseInt(actionNdx || '0')]
                 const orgaNdx = await player.ask(`Select an organisation for action ${action.type}`)
                 const orga = player.organisationHand[parseInt(orgaNdx || '0')]
@@ -44,6 +35,40 @@ export default class PlayerBrain {
                 const visible = await player.ask(`Which one is visible?`, `1:${action.type}   2:${orga.organisation}`)
     
                 const mission = new Mission(action, orga, player, visible === '1' ? 'action' : 'organisaton')
+                player.addMission(mission)
+            }
+        } else if ( PlayerFront.isPlayerFront(player)) {
+
+            for( let i = 0; i < nbToProgram; i++) {
+                var action: CardAction | undefined = undefined
+                while(action === undefined) {
+                    var actionUUID = await player.ask("Select an action", {card: player.actionHand.map(c => c.uuid)})
+                    action = player.actionHand.find(n => n.uuid === actionUUID)
+                }
+
+                var orga: CardOrganisation | undefined = undefined
+                while(orga === undefined) {
+                    var orgaUUID = await player.ask(`Select an organisation for action ${action.type}`, {card: player.organisationHand.map(c => c.uuid)})
+                    orga = player.organisationHand.find(n => n.uuid === orgaUUID)
+                }
+
+                const visible = await player.ask(`Which one is visible?`, {card: [orga.uuid, action.uuid]})
+                console.log(visible, visible === action.uuid ? 'action' : 'organisaton')
+    
+                const mission = new Mission(action, orga, player, visible === action.uuid ? 'action' : 'organisaton')
+                player.addMission(mission)
+                if (onSelection) {
+                    onSelection()
+                }
+            }
+        } else {
+            
+            for (let i = 0; i < nbToProgram; i++) {
+                const action = this.pickRandom(player.actionHand)
+                const orga = this.pickRandom(player.organisationHand)
+    
+                const visible: 'organisaton' | 'action' = Math.random() < 0.5 ? 'organisaton' : 'action'
+                const mission = new Mission(action, orga, player, visible)
                 player.addMission(mission)
             }
         }
@@ -108,7 +133,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.Arguments:
                 var howMuch = 2
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch})
@@ -120,7 +145,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.TargetedArguments:
                 var visitorsDown: Visitor[]
                 var visitorsUp: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitorsDown = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 1})
                     visitorsUp = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch: 1})
                 } else {
@@ -135,7 +160,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.Goodies:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch: 2})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2})
@@ -153,7 +178,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.Hijacking: // Move left or right
                 var way: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right'
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, orgaOnly: true})
@@ -164,7 +189,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.CounterArgument:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 2})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2, orgaOnly: true})
@@ -175,7 +200,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.Investigation:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})
@@ -185,7 +210,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.MakeDisappear:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
+                if (PlayerConsole.isPlayerConsole(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})

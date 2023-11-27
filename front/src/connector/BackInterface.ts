@@ -1,9 +1,11 @@
 import socketMng, { SocketReceived, SocketSend } from '../socket/SocketMng'
 import { IGameContext } from '../types/IGameContext'
+import { ISelectableContext } from '../types/ISelectableContext'
 
 export default class BackInterface {
 
     private _callBack?: ((ctx:IGameContext) => void)
+    private _callBackSelect?: ((ctx:ISelectableContext) => void)
     private _isConnected: boolean = false
 
     constructor() {
@@ -25,6 +27,9 @@ export default class BackInterface {
 
     onContextChange(fct: (ctx: IGameContext) => void) {
         this._callBack = fct
+    }
+    onSelectableChange(fct: (ctx: ISelectableContext) => void) {
+        this._callBackSelect = fct
     }
 
   
@@ -55,6 +60,16 @@ export default class BackInterface {
             
             console.log('Received Ask')
             console.log(args)
+
+            if (args.objects) {
+                const select: ISelectableContext = {
+                    selectableCards: args.objects.card || [],
+                    selectableVisitors: args.objects.visitor || [],
+                    selectableMissions: args.objects.mission || [],
+                }
+                if (this._callBackSelect) this._callBackSelect(select)
+
+            }
 
         })
 

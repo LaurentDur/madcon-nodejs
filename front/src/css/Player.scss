@@ -1,4 +1,8 @@
-.MainPlayer {
-    border: 1px solid red;
-    padding: 1rem;
+.Player {
+    div.hand>div {
+        display: inline-block;
+        width: 3rem;
+        overflow: visible;
+        transform: rotate(3deg);
+    }
 }

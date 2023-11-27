@@ -1,14 +1,15 @@
+import BackInterface from "../connector/BackInterface";
+
 export interface IGameContext {
+    connector?:          BackInterface,
     sourceEvent:        string;
     currentPlayer:      string;
     uuid:               string;
     organisations:      string[];
-    selectableCards:    any[];
-    selectableVisitors: any[];
-    visibleCards:       any[];
     visibleVisitors:    string[];
     visitors:           Visitor[];
     players:            Player[];
+    nbSteps:            number;
 }
 
 export interface Player {

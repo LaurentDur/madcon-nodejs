@@ -1,7 +1,10 @@
 import { socket } from './Socket'
 
 export enum SocketSend {
-    handshake = 'handshake'
+    handshake = 'handshake',
+    cardSelected = 'cardSelected',
+    visitorSelected = 'visitorSelected',
+    missionSelected = 'missionSelected',
 }
 
 export enum SocketReceived {

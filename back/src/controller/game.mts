@@ -265,8 +265,7 @@ export default class Game extends Entity {
             this.dispatchPlayerInTeams()
             PlayerBrain.pickRandom(this.players).giveSecurityToken()
             await this.inviteFirstVisitors()
-    
-            if (this.nbPlayer < 4) await this.inviteFirstVisitors()
+            await this.inviteFirstVisitors()
     
             // this.console("Will start tour")
     
@@ -372,7 +371,9 @@ export default class Game extends Entity {
     }
     protected async programmationPhase() {
         await Promise.all(
-            this.players.map(player => PlayerBrain.programMissions(player))
+            this.players.map(player => PlayerBrain.programMissions(player, () => {
+                this.dispatchEvent(GameEvents.onAction)
+            }))
         )
     }
     protected async sabotagePhase() {

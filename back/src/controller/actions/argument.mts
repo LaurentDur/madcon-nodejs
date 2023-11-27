@@ -3,12 +3,13 @@ import CardAnimation from "../../objects/cardAnimation.mjs"
 import Mission from "../../objects/mission.mjs"
 import Player from "../../objects/player.mjs"
 import PlayerConsole from "../../objects/playerConsole.mjs"
+import PlayerFront from "../../objects/playerFront.mjs"
 import Visitor from "../../objects/visitor.mjs"
 import { ORGANISATIONS } from "../../settings/gameSettings.mjs"
 import PlayerBrain from "../playerBrain.mjs"
 
 
-export async function pickMission(args: {player: PlayerConsole,  players: Player[], howMuch: number, notDoneOnly: boolean}) {
+export async function pickMission(args: {player: PlayerConsole | PlayerFront,  players: Player[], howMuch: number, notDoneOnly: boolean}) {
     const {players, notDoneOnly, howMuch, player} = args
 
     const result: Mission[] = []
@@ -16,12 +17,18 @@ export async function pickMission(args: {player: PlayerConsole,  players: Player
         const candidates: Mission[] = []
         players.forEach(p => candidates.push(...p.mission.filter(m => !notDoneOnly || (notDoneOnly && !m.executed))))
 
-        const context = candidates.map((m) => {
-            const sab = m.sabotage.length > 0 ? ` : Sabotage by ${m.sabotage.map(n => n.player.name).join(', ')}` : ''
-            return `${m.uuid} : ${m.visibleCard === 'action' ? m.action.type : m.organisation.organisation} : ${m.player.name}${sab}`
-        })
-
-        const uuid = await player.ask(`Select a mission`, context.join('\n'))
+        
+        let uuid: string = ''
+        if (PlayerConsole.isPlayerConsole(player)) {
+            const context = candidates.map((m) => {
+                const sab = m.sabotage.length > 0 ? ` : Sabotage by ${m.sabotage.map(n => n.player.name).join(', ')}` : ''
+                return `${m.uuid} : ${m.visibleCard === 'action' ? m.action.type : m.organisation.organisation} : ${m.player.name}${sab}`
+            })
+            uuid = await player.ask(`Select a mission`, context.join('\n'))
+            
+        } else if (PlayerFront.isPlayerFront(player)) {
+            uuid = await player.ask(`Select a mission`, {mission: candidates.map(n => n.uuid)})
+        }
         result.push(...candidates.filter(v => v.uuid === uuid))
     }
 
