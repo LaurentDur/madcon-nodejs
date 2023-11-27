@@ -16,19 +16,13 @@ function MainPlayer(props: IProps) {
 
     const cls = ['MainPlayer']
 
+    const player = gameContext.players.find(p => p.uuid === props.uuid)
+    if (!player) return <div>Player not found!</div>
 
     return (
         <div className={cls.join(' ')}>
             <div className='missions'>
 
-                <Mission uuid='m'
-                        cardA={<Card uuid='a6' type='action' action={ACTIONCARD_TYPE.Security}/>}
-                        cardB={<Card uuid='xx' type='organisation' organisation='Azerty'/>}
-                />
-                <Mission uuid='m2'/>
-                <Mission uuid='m3'/>
-                <Mission uuid='m4'/>
-                <Mission uuid='m5'/>
 
             </div>
 
@@ -36,11 +30,18 @@ function MainPlayer(props: IProps) {
                 <p>You cards</p>
                 <div className='cards'>
                     <div className='actions'>
-                        <Card uuid='a6' type='action' action={ACTIONCARD_TYPE.TargetedArguments}/>
-                        <Card uuid='a6' type='action' action={ACTIONCARD_TYPE.Goodies}/>
+                        {
+                            player.actionHand.map(c => 
+                                <Card key={c.uuid} uuid={c.uuid} type='action' forceVisible action={c.action as ACTIONCARD_TYPE}/>
+                                )
+                        }
                     </div>
                     <div className='organisations'>
-                        <Card uuid='xxx' type='organisation' organisation='Boutic'/>
+                        {
+                            player.orgahand.map(c => 
+                                <Card key={c.uuid} uuid={c.uuid} type='organisation' forceVisible organisation={c.organisation}/>
+                                )
+                        }
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import Card from "./card.mjs"
+import Player from "./player.mjs"
 
 
 export enum ACTIONCARD_TYPE {
@@ -35,4 +36,10 @@ export default class CardAction extends Card {
     reset(): void {
     }
 
+    export(forPlayer?: Player): { [k: string]: any; uuid: string } {
+        return {
+            action: this.owner !== forPlayer ? '' : this.type,
+            ...super.export(forPlayer)
+        }
+    }
 }

@@ -24,4 +24,11 @@ export default abstract class Card extends Entity {
     }
 
     abstract reset(): void
+
+    export(forPlayer?: Player): { [k: string]: any; uuid: string } {
+        return {
+            ower: this._onwer?.uuid,
+            uuid: forPlayer === this.owner ? this.uuid : ''
+        }
+    }
 }

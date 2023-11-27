@@ -31,6 +31,16 @@ export default class Mission extends Entity {
         this.sabotage.length = 0
     }
 
+    export(forPlayer?: Player): { [k: string]: any; uuid: string } {
+        return {
+            action: this.action?.export(  this._visible === 'action' ? this.action.owner : forPlayer ),
+            orga: this.organisation?.export( this._visible === 'organisaton' ? this.organisation.owner : forPlayer ),
+            visible: this._visible,
+            executed: this._executed,
+            ...super.export(forPlayer)
+        }
+    }
+
     get visibleCard() {
         return this._visible
     }

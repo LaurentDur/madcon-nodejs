@@ -22,6 +22,10 @@ export const VISITORS_DISPATCH = [
     { value: 1, count: 20, name: "Vilain"},
 ]
 
+export const PLAYER_COLORS = [
+    'red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'
+]
+
 export enum PLAYER_NAMES {
     "John",
     "Annie",

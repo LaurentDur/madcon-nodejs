@@ -5,8 +5,10 @@ import CardOrganisation from "./cardOrganisation.mjs";
 import Entity from "./entity.mjs";
 import Mission from "./mission.mjs";
 import Team from "./team.mjs";
+import { v4 } from 'uuid'
 
-type IType = 'random' | 'console'
+
+type IType = 'random' | 'console' | 'front'
 
 export default class Player extends Entity {
 
@@ -14,6 +16,8 @@ export default class Player extends Entity {
     private _team?: Team
     private _hasSecurityToken: boolean = false
     readonly type:IType 
+    readonly color: string
+    readonly secretUuid: string
 
     private _deck_organisation: CardOrganisation[] = []
     private _deck_action: CardAction[] = []
@@ -23,10 +27,12 @@ export default class Player extends Entity {
 
     private _missions: Mission[] = []
 
-    constructor(name: string, type:IType = 'random' ) {
+    constructor(name: string, color: string, type:IType = 'random' ) {
         super()
+        this.color = color
         this.type = type
         this._name = name
+        this.secretUuid = v4()
     }
 
     get hasSecurityToken() {
@@ -69,6 +75,17 @@ export default class Player extends Entity {
         this._missions.forEach(p => log.push( ...(p.verbose().map(n => '    '+n))))
    
         return log
+    }
+
+    export(forPlayer?: Player): { [k: string]: any; uuid: string; } {
+        return {
+            name: this._name,
+            color: this.color,
+            actionHand: this._hand.action.map(n => n.export(forPlayer)),
+            orgahand: this._hand.orga.map(n => n.export(forPlayer)),
+            mission: this._missions.map(m => m.export(forPlayer)),
+            ...super.export(forPlayer)
+        }
     }
 
     addMission(mission: Mission) {

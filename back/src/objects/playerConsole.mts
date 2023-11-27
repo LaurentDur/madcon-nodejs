@@ -10,8 +10,8 @@ const consoleRead = readline.createInterface({
 
 export default class PlayerConsole extends Player {
 
-    constructor() {
-        super("NS", 'console')
+    constructor(color: string) {
+        super("NS", color, 'console')
         
     }
     

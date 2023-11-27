@@ -5,24 +5,16 @@ import Card from './components/Card';
 import { ACTIONCARD_TYPE } from './types/ActionCardType';
 import Player from './components/Player';
 import MainPlayer from './components/MainPlayer';
+import BackInterface from './connector/BackInterface';
+import Game from './components/Game';
 
 function App() {
-
+ 
   return (
     <div className="App">
       <header className="App-header">
 
-        Hey !!
-
-        <div className='players'>
-          <Player uuid='P1' color='red' name='Leo'/>
-          <Player uuid='P2' color='blue' name='Marry'/>
-          <Player uuid='P3' color='green' name='Nero'/>
-        </div>
-
-        <Board uuid='xxx'/>
-
-        <MainPlayer color='pink' uuid='MainP'/>
+        <Game/>
 
       </header>
     </div>

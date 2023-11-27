@@ -4,6 +4,7 @@ import CardAnimation, { ANIMCARD_TYPE } from "../objects/cardAnimation.mjs";
 import Mission from "../objects/mission.mjs";
 import Player from "../objects/player.mjs";
 import PlayerConsole from "../objects/playerConsole.mjs";
+import PlayerFront from "../objects/playerFront.mjs";
 import Visitor from "../objects/visitor.mjs";
 import { MISSION_LIMIT, ORGANISATIONS } from "../settings/gameSettings.mjs";
 import { CONSOLE_COLOR } from "../types/consoleColor.mjs";
@@ -29,7 +30,7 @@ export default class PlayerBrain {
                 const mission = new Mission(action, orga, player, visible)
                 player.addMission(mission)
             }
-        } else if ( PlayerConsole.isPlayerConsole(player) ) {
+        } else if ( PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
 
             for( let i = 0; i < nbToProgram; i++) {
                 const actions = player.actionHand.map( (n,i) => `${i}:${n.type}`)
@@ -60,7 +61,7 @@ export default class PlayerBrain {
 
             
         let mission: Mission
-        if (PlayerConsole.isPlayerConsole(player)) {
+        if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
             let missions = await pickMission({player, players: allPlayers.filter(p => p !== player), howMuch: 1, notDoneOnly: true})
             mission = missions[0]
         } else {
@@ -107,7 +108,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.Arguments:
                 var howMuch = 2
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch})
@@ -119,7 +120,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.TargetedArguments:
                 var visitorsDown: Visitor[]
                 var visitorsUp: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitorsDown = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 1})
                     visitorsUp = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch: 1})
                 } else {
@@ -134,7 +135,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.Goodies:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: true, howMuch: 2})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2})
@@ -152,7 +153,7 @@ export default class PlayerBrain {
             case ACTIONCARD_TYPE.Hijacking: // Move left or right
                 var way: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right'
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, orgaOnly: true})
@@ -163,7 +164,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.CounterArgument:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: false, organisation, queue: false, howMuch: 2})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 2, orgaOnly: true})
@@ -174,7 +175,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.Investigation:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})
@@ -184,7 +185,7 @@ export default class PlayerBrain {
 
             case ACTIONCARD_TYPE.MakeDisappear:
                 var visitors: Visitor[]
-                if (PlayerConsole.isPlayerConsole(player)) {
+                if (PlayerConsole.isPlayerConsole(player) || PlayerFront.isPlayerFront(player)) {
                     visitors = await pickVisitor({board, player, entrance: true, organisation, queue: false, howMuch: 1})
                 } else {
                     visitors = await randomSelectVisitors({animationCard, board, organisation, howMuch: 1, excludeQueue: true})

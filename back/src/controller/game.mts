@@ -10,38 +10,61 @@ import Player from "../objects/player.mjs";
 import Team from "../objects/team.mjs";
 import Visitor from "../objects/visitor.mjs";
 import { z } from "zod"
-import { NB_TURN, ORGANISATIONS, PLAYER_NAMES, VISITORS_DISPATCH } from "../settings/gameSettings.mjs";
+import { NB_TURN, ORGANISATIONS, PLAYER_COLORS, PLAYER_NAMES, VISITORS_DISPATCH } from "../settings/gameSettings.mjs";
 import PlayerConsole from "../objects/playerConsole.mjs";
+import PlayerFront from "../objects/playerFront.mjs";
 
+export enum GameEvents {
+    onNewround= "onNewround",
+    afterDraw= "afterDraw",
+    onAction= "onAction",
+}
 
 export default class Game extends Entity {
 
     readonly board:Board = new Board()
     readonly nbPlayer: number
     readonly consolePlayer: boolean
+    readonly frontPlayer: boolean
     readonly players: Player[] = []
     readonly animationDeck: CardAnimation[] = []
 
     readonly teams: Team[] = []
 
+    private _started: boolean = false
     private _stats: Stats
     private _currentRound = 0
     private _currentAnimation?: CardAnimation
+
+    private _listeners: {function: ((event: GameEvents, data?: {game: Game, [k:string]: any}) => void), eventName: GameEvents}[] = []
 
     /**
      * 
      * @param nbPlayer 
      */
-    constructor(nbPlayer: number, consolePlayer: boolean = false) {
+    constructor(nbPlayer: number, opt: {consolePlayer?: boolean, frontPlayer?: boolean}) {
         super()
         this.nbPlayer = z.number().min(2).max(7).parse(nbPlayer)
         this._stats = new Stats()
-        this.consolePlayer = consolePlayer
+        this.consolePlayer = opt.consolePlayer === true || false
+        this.frontPlayer = opt.frontPlayer === true || false
     }
 
     async init() {
         // Init game
         await this.reset()
+    }
+
+    addEventListener(eventName: GameEvents, fct: (eventName: GameEvents, data?: {game: Game, [k:string]: any}) => void): () => void {
+        this._listeners.push({function: fct, eventName})
+        return () => {
+            const ndx = this._listeners.findIndex(n => n.function === fct)
+            if (ndx >= 0) this._listeners.splice(ndx, 1)
+        }
+    }
+
+    async dispatchEvent(event: GameEvents, data?: {[k:string]: any}) {
+        await Promise.all(this._listeners.filter(n => n.eventName === event).map(n => n.function(event, {game: this, ...data}))) 
     }
 
     /**
@@ -60,6 +83,7 @@ export default class Game extends Entity {
         await this.createPlayers()
 
         this._currentRound = 0
+        this._started = false
     }
 
     /**
@@ -67,6 +91,11 @@ export default class Game extends Entity {
      */
     get stats() {
         return this._stats
+    }
+
+
+    get started() {
+        return this._started
     }
 
     /**
@@ -140,14 +169,19 @@ export default class Game extends Entity {
 
         let startI = 0
         if (this.consolePlayer) {
-            const u = new PlayerConsole()
+            const u = new PlayerConsole(PLAYER_COLORS[startI])
             this.players.push(u)
             await u.chooseName()
-            startI = 1
+            startI++
+        } 
+        if (this.frontPlayer) {
+            const u = new PlayerFront(PLAYER_COLORS[startI])
+            this.players.push(u)
+            startI++
         } 
 
         for (let i = startI; i < this.nbPlayer && i < names.length; i++ ) {
-            const player = new Player(names[i])
+            const player = new Player(names[i], PLAYER_COLORS[i])
             this.players.push(player)
         }
     }
@@ -223,24 +257,26 @@ export default class Game extends Entity {
      */
     async startGame() {
 
-        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.startGame}`)
+        if (!this._started) {
+            this._started = true
+            console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.startGame}`)
+        
+            this.createPlayerCardDeck()
+            this.dispatchPlayerInTeams()
+            PlayerBrain.pickRandom(this.players).giveSecurityToken()
+            await this.inviteFirstVisitors()
     
-        this.createPlayerCardDeck()
-        this.dispatchPlayerInTeams()
-        PlayerBrain.pickRandom(this.players).giveSecurityToken()
-        await this.inviteFirstVisitors()
-
-        if (this.nbPlayer < 4) await this.inviteFirstVisitors()
-
-        // this.console("Will start tour")
-
-        for ( let i = 0; i < NB_TURN; i++) {
-            await this.startTour()
+            if (this.nbPlayer < 4) await this.inviteFirstVisitors()
+    
+            // this.console("Will start tour")
+    
+            for ( let i = 0; i < NB_TURN; i++) {
+                await this.startTour()
+            }
+    
+            console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.endGame}${CONSOLE_COLOR.white}`)
+            return this.countScores()
         }
-
-        console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.endGame}${CONSOLE_COLOR.white}`)
-        return this.countScores()
-
     }
 
     protected countScores() {
@@ -292,6 +328,7 @@ export default class Game extends Entity {
      */
     protected async startTour() {
         this._currentRound++
+        this.dispatchEvent(GameEvents.onNewround, {cuurentRound: this._currentRound})
         console.log(`${CONSOLE_COLOR.red}${CONSOLE_TEXT.newTour}`)
         console.log(`Starting Round ${this._currentRound} of game ${this.uuid}${CONSOLE_COLOR.white}`)
         
@@ -301,6 +338,7 @@ export default class Game extends Entity {
         // Make them draw
         this.players.forEach(player => player.drawHand() )
         this.console("After Draw") 
+        this.dispatchEvent(GameEvents.afterDraw)
 
 
 
@@ -358,6 +396,8 @@ export default class Game extends Entity {
             if (missions.length > 0) {
                 console.log(`    Current player ${CONSOLE_COLOR.yellow}${player.name}${CONSOLE_COLOR.white}`)
                 const playerMission = missions[0]
+                
+                await this.dispatchEvent(GameEvents.onAction)
                 await PlayerBrain.execMission({
                     player, 
                     players: this.players,

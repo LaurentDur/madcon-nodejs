@@ -5,8 +5,9 @@ export enum SocketSend {
 }
 
 export enum SocketReceived {
-    onHandshake = 'handshake',
-    onFullGame = 'fullgame',
+    handshake = 'handshake',
+    fullGame = 'fullgame',
+    ask = 'ask',
 }
 
 class SocketMng {

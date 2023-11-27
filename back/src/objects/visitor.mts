@@ -31,6 +31,16 @@ export default class Visitor extends Entity {
         return this._invitedBy
     }
 
+    export(forPlayer?: Player): { [k: string]: any; uuid: string; } {
+        return {
+            value: forPlayer && this.seen.includes(forPlayer) ? this.value : undefined,
+            position: this._position,
+            invitedBy: {uuid: this._invitedBy?.uuid, color: this._invitedBy?.color},
+            seen: this.seen.map(p => p.uuid),
+            ...super.export(forPlayer)
+        }
+    }
+
     setPosition(where: IWhere, orga?: ORGANISATIONS, steps?: number) {
         this._position.where = where
         this._position.orga = orga

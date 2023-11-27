@@ -4,7 +4,7 @@ import { GameContext } from '../contexts/GameContext';
 
 type IProps = {
     uuid: string,
-    value: number,
+    value?: number,
     playerColor: string,
 }
 
@@ -23,7 +23,7 @@ function Visitor(props: IProps) {
     return (
         <div className={cls.join(' ')} onMouseEnter={() => setShow(isVisible && true)} onMouseLeave={() => setShow(false)}>
             { show && 
-                <div className='value' style={{background: props.playerColor}}><span>{props.value.toString()}</span></div>
+                <div className='value' style={{background: props.playerColor}}><span>{props.value?.toString() || ''}</span></div>
             }
             { !show && 
                 <div className='playerMark' style={{background: props.playerColor}}>&nbsp;</div>

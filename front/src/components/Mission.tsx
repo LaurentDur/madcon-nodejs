@@ -1,12 +1,12 @@
 import React, { ReactNode, useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
-import Card from './Card';
-import { ACTIONCARD_TYPE } from '../types/ActionCardType';
+
 
 type IProps = {
     uuid: string,
-    cardA?: ReactNode,
-    cardB?: ReactNode,
+    action?: ReactNode,
+    orga?: ReactNode,
+    visibleCard: 'action' | 'organisation'
 }
 
 function Mission(props: IProps) {
@@ -18,10 +18,10 @@ function Mission(props: IProps) {
     return (
         <div className={cls.join(' ')}>
             <div className='topCard'>
-                {props.cardA}
+                {props.visibleCard === 'action' ? props.action : props.orga}
             </div>
-            <div className='bottomCard'>            
-                {props.cardB}
+            <div className='bottomCard'>         
+                {props.visibleCard === 'action' ? props.orga : props.action}
             </div>
         </div>
     )

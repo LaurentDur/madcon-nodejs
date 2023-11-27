@@ -1,4 +1,5 @@
 import { v4 } from 'uuid'
+import Player from './player.mjs'
 
 export default abstract class Entity {
 
@@ -13,6 +14,10 @@ export default abstract class Entity {
 
     verbose(): string[] {
         return []
+    }
+
+    export(forPlayer?: Player): {uuid: string, [k:string]: any} {
+        return {uuid: this.uuid, resultForPlayer: forPlayer?.uuid}
     }
 
     shuffleArray(array: Array<any>) {
