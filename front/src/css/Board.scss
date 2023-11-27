@@ -2,7 +2,7 @@
     margin: 1rem;
 
     .entrance {
-        border: 1px dashed grey;
+        box-shadow: rgba(119, 117, 117, 0.582) 0px 0px 6px;
         padding: 1rem;
         margin-top: 1rem;
 
@@ -12,10 +12,19 @@
         z-index: 300;
         display: flex;
         flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
         gap: 1rem;
-        &>div {
+        &>div.step {
+            display: inline-flex;
+            width: 100%;
+            z-index: 300;
+            box-shadow: rgba(116, 116, 116, 0.582) 0px 0px 6px;
+        }
+        div.step>div {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            gap: 0.3rem;
         }
     }
 
@@ -27,20 +36,19 @@
         gap: 1rem;
         &>div {
             position: relative;
-            border: 1px dashed grey;
-            padding: 2rem;
+            box-shadow: rgba(167, 167, 167, 0.582) 0px 0px 6px;
+            padding: 1rem;
             &>p {
                 position: absolute;
                 left: 0;
                 top: 0;
                 z-index: 100;
-                font-size: 5rem;
+                font-size: 3rem;
                 padding: 0;
                 margin: 0;
                 color: #eaeaea;
                 font-weight: bolder;
             }
-            display: inline-flex;
             flex-grow: 2;
             flex-basis: 33%;
             div.Visitor {

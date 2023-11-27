@@ -378,14 +378,24 @@ export default class Game extends Entity {
     }
     protected async sabotagePhase() {
 
+        await this.dispatchEvent(GameEvents.onAction)
         let player = this.players.find(n => n.hasSecurityToken)
         if (player) {
             for (let i = 0; i < this.players.length; i++) {
                 await PlayerBrain.sabotage({player, allPlayers: this.players, animationCard: this._currentAnimation as CardAnimation})
+                await this.dispatchEvent(GameEvents.onAction)
+                if (player.type === 'random' && this.frontPlayer) {
+                    await this.delay(800)
+                }
                 player = PlayerBrain.getNextPlayer(player, this.players)
             }
         }
     }
+
+    protected delay(time: number) {
+        return new Promise(resolve => setTimeout(resolve, time));
+    } 
+
     protected async actionPhase() {
 
         let player = this.players.find(n => n.hasSecurityToken)
@@ -398,7 +408,7 @@ export default class Game extends Entity {
                 console.log(`    Current player ${CONSOLE_COLOR.yellow}${player.name}${CONSOLE_COLOR.white}`)
                 const playerMission = missions[0]
                 
-                await this.dispatchEvent(GameEvents.onAction)
+                if (player.type === 'front') await this.dispatchEvent(GameEvents.onAction)
                 await PlayerBrain.execMission({
                     player, 
                     players: this.players,
@@ -407,6 +417,10 @@ export default class Game extends Entity {
                     animationCard: this._currentAnimation as CardAnimation,
                     stats: this._stats
                 })
+                await this.dispatchEvent(GameEvents.onAction)
+                if (player.type === 'random' && this.frontPlayer) {
+                    await this.delay(800)
+                }
                 this._stats.push('action', playerMission.action.type)
                 this._stats.push('organisation', playerMission.finalOrganisaiton)
     

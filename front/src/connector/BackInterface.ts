@@ -22,7 +22,16 @@ export default class BackInterface {
     }
 
     send(event: SocketSend, message: {[k:string]: any}) {
+        const select: ISelectableContext = {
+            question: undefined,
+            selectableCards: [],
+            selectableVisitors: [],
+            selectableMissions: [],
+            selectableOrganisation: [],
+        }
+        if (this._callBackSelect) this._callBackSelect(select)
         socketMng.emit(event, message)
+
     }
 
     onContextChange(fct: (ctx: IGameContext) => void) {
@@ -40,7 +49,6 @@ export default class BackInterface {
         
         socketMng.socket.on(SocketReceived.handshake, (args) => {
             
-            // TODO
             console.log('Received handshake question!', 'Send handshake')
             socketMng.socket.emit(SocketSend.handshake, {})
         })
@@ -63,9 +71,11 @@ export default class BackInterface {
 
             if (args.objects) {
                 const select: ISelectableContext = {
+                    question: args.question,
                     selectableCards: args.objects.card || [],
                     selectableVisitors: args.objects.visitor || [],
                     selectableMissions: args.objects.mission || [],
+                    selectableOrganisation: args.objects.organisation || [],
                 }
                 if (this._callBackSelect) this._callBackSelect(select)
 

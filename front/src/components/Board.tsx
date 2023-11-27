@@ -3,6 +3,7 @@ import Visitor from './Visitor';
 import { GameContext, gameData } from '../contexts/GameContext';
 import { IGameContext } from '../types/IGameContext';
 import BackInterface from '../connector/BackInterface';
+import OrganisationCelll from './OrganisationCelll';
 
 type IProps = {
     uuid: string,
@@ -14,7 +15,6 @@ function Board(props: IProps) {
     
     const gameContext = useContext(GameContext)
 
-
     return (
         
         <div className="Board">
@@ -23,16 +23,7 @@ function Board(props: IProps) {
             <div className='orgaCells'>
                 {
                     gameContext.organisations.map(orga => {
-                        return (<div>
-                            <p>{orga}</p>
-                            <div className='steps'>
-                                {[...Array(gameContext.nbSteps).keys()].map((x,i) => <div className='step'>
-                                    <p>{i}</p>
-                                    <div>
-                                    </div>
-                                </div>)}                                
-                            </div>
-                        </div>)
+                        return (<OrganisationCelll uuid={orga} key={orga} orga={orga}/>)
                     })
                 }
             </div>

@@ -1,4 +1,5 @@
 import BackInterface from "../connector/BackInterface";
+import { ACTIONCARD_TYPE } from "./ActionCardType";
 
 export interface IGameContext {
     connector?:          BackInterface,
@@ -14,16 +15,27 @@ export interface IGameContext {
 
 export interface Player {
     name:            string;
+    firstPlayer:     boolean;
     actionHand:      Hand[];
     orgahand:        Hand[];
-    mission:         any[];
+    mission:         Mission[];
     color:           string;
     uuid:            string;
     resultForPlayer: string;
 }
 
+export interface Mission {
+    action:          Hand;
+    orga:            Hand;
+    executed:        boolean;
+    uuid:            string;
+    visible: "action" | "organisation";
+    resultForPlayer:   string;
+    sabotage:          Hand[];
+}
+
 export interface Hand {
-    action?:         string;
+    action?:         ACTIONCARD_TYPE;
     ower:            string;
     uuid:            string;
     resultForPlayer: string;
@@ -41,4 +53,6 @@ export interface Visitor {
 
 export interface Position {
     where: string;
+    orga?: string;
+    steps?: number;
 }

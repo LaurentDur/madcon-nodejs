@@ -30,7 +30,9 @@ export default class PlayerFront extends Player {
                 let event: SocketReceived
                 if (objects.card !== undefined) event =  SocketReceived.cardSelected
                 else if (objects.mission !== undefined) event =  SocketReceived.missionSelected
+                else if (objects.orga !== undefined) event =  SocketReceived.orgaSelected
                 else event =  SocketReceived.visitorSelected
+                
 
                 const removeA = socketManager.addListener(event, (event: SocketReceived, data: any, socket: Socket) => {
                     // console.log(event, data)

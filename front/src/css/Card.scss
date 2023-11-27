@@ -29,6 +29,19 @@
             display: block;
         }
     }
+    
+    &.small {
+        &.front {
+            p.explain, 
+            p.type {
+                display: none;
+            }
+        }
+        &>div {
+            width: 5rem;
+            height: 3rem;
+        }
+    }
 
     &.selectable>div {
         @extend .selectableModel

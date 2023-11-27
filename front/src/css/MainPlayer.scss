@@ -1,9 +1,15 @@
 .MainPlayer {
-    border: 1px solid red;
-    
+
+    .task {
+        text-align: center;
+        font-size: 3rem;
+        min-height: 5rem;
+    }
+        
     .missions {
         display: flex;
         flex-direction: row;
+        justify-content: center;
         gap: 0.5rem;
     }
 

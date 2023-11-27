@@ -4,6 +4,7 @@ import { GameContext } from '../contexts/GameContext';
 import Mission from './Mission';
 import Card from './Card';
 import { ACTIONCARD_TYPE } from '../types/ActionCardType';
+import { SelectableContext } from '../contexts/SelectableContext';
 
 type IProps = {
     uuid: string,
@@ -13,6 +14,7 @@ type IProps = {
 function MainPlayer(props: IProps) {
 
     const gameContext = useContext(GameContext)
+    const selectContext = useContext(SelectableContext)
 
     const cls = ['MainPlayer']
 
@@ -21,18 +23,9 @@ function MainPlayer(props: IProps) {
 
     return (
         <div className={cls.join(' ')}>
-            <div className='missions'>
-                {
-                    player.mission.map(m => <Mission uuid={m.uuid} key={m.uuid} visibleCard={m.visible} 
-                        action={<Card uuid={m.action.uuid} type='action' action={m.action.action} forceVisible={m.visible === 'action'}/>}
-                        orga={<Card uuid={m.orga.uuid} type='organisation' action={m.orga.organisation} forceVisible={m.visible !== 'action'}/>}
-                        />)
-                }
-
-            </div>
+            <div className='task'>{selectContext.question}</div>
 
             <div className='hand'>
-                <p>You cards</p>
                 <div className='cards'>
                     <div className='actions'>
                         {
@@ -49,6 +42,17 @@ function MainPlayer(props: IProps) {
                         }
                     </div>
                 </div>
+            </div>
+            
+            <div className='missions'>
+                {
+                    player.mission.map(m => <Mission uuid={m.uuid} key={m.uuid} visibleCard={m.visible} 
+                        sabotage={m.sabotage}
+                        action={<Card uuid={m.action.uuid} type='action' action={m.action.action} forceVisible={m.visible === 'action'}/>}
+                        orga={<Card uuid={m.orga.uuid} type='organisation' organisation={m.orga.organisation} forceVisible={m.visible !== 'action'}/>}
+                        />)
+                }
+
             </div>
         </div>
     )

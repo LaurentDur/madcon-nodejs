@@ -2,13 +2,17 @@ import React, { ReactNode, useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
 import { SelectableContext } from '../contexts/SelectableContext';
 import { SocketSend } from '../socket/SocketMng';
+import Card from './Card';
+import { Hand } from '../types/IGameContext';
 
 
 type IProps = {
     uuid: string,
     action?: ReactNode,
     orga?: ReactNode,
-    visibleCard: 'action' | 'organisation'
+    visibleCard: 'action' | 'organisation',
+    size: 'small' | 'medium' | 'large',
+    sabotage: Hand[]
 }
 
 function Mission(props: IProps) {
@@ -18,7 +22,7 @@ function Mission(props: IProps) {
 
     const selectable = selectContext.selectableMissions.includes(props.uuid)
 
-    const cls = ['Mission']
+    const cls = ['Mission', props.size]
     if (selectable) cls.push('selectable')
 
     const onClick = () => {
@@ -35,8 +39,23 @@ function Mission(props: IProps) {
             <div className='bottomCard'>         
                 {props.visibleCard === 'action' ? props.orga : props.action}
             </div>
+            {
+                props.sabotage.length > 0 && <div className='sabotage'>
+                        <Card uuid={props.sabotage[props.sabotage.length - 1].uuid} 
+                                type='organisation'
+                                forceVisible
+                                organisation={props.sabotage[props.sabotage.length - 1].organisation} 
+                                size={props.size}
+                                />
+                    </div>
+            }
         </div>
     )
 
 }
+
+Mission.defaultProps = {
+    size: 'medium'
+}
+
 export default Mission;

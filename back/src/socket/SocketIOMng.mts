@@ -9,6 +9,7 @@ export enum SocketReceived {
     cardSelected = 'cardSelected',
     visitorSelected = 'visitorSelected',
     missionSelected = 'missionSelected',
+    orgaSelected = 'orgaSelected',
 }
 
 export enum SocketSend {
@@ -63,13 +64,11 @@ export default class SocketIOMng {
 
 
     async sprayGameUpdate(game: Game, sourceEvent: string) {
-        console.log("After event", sourceEvent, "Send updated info")
         await Promise.all(
             game.players.map(async p => {
                 if (PlayerFront.isPlayerFront(p)) {
-                    console.log("Try to send game info to ", p.uuid, p.name)
                     const data = {sourceEvent, ...onlineParty.export(game, p.secretUuid)}
-                    console.log(JSON.stringify(data))
+                    // console.log(JSON.stringify(data))
                     p.socket?.emit(SocketSend.fullgame, data)
                 }
             })

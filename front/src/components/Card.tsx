@@ -10,6 +10,7 @@ type IProps = {
     action?: ACTIONCARD_TYPE | '',
     organisation?: string,
     forceVisible: boolean,
+    size: 'small' | 'medium' | 'large'
 }
 
 function Card(props: IProps) {
@@ -20,9 +21,10 @@ function Card(props: IProps) {
     const isVisible = props.forceVisible === true
     const selectable = selectContext.selectableCards.includes(props.uuid)
 
-    const cls = ['Card', props.type]
+    const cls = ['Card', props.type, props.size]
     if (selectable) cls.push('selectable')
     if (!isVisible) cls.push('back')
+    else cls.push('front')
 
     const text = ACTIONCARD_TEXT.find(n => n.type === props.action)?.text || ''
     const act = props.action !== '' ? props.action : undefined
@@ -35,7 +37,7 @@ function Card(props: IProps) {
     }
 
     return (
-        <div className={cls.join(' ')} onClick={onClick}>
+        <div className={cls.join(' ')} onClick={onClick} title={text}>
             <div>
                 {
                     isVisible && <>
@@ -50,6 +52,7 @@ function Card(props: IProps) {
 
 }
 Card.defaultProps = {
-    forceVisible: false
+    forceVisible: false,
+    size: 'medium',
 };
 export default Card;

@@ -4,6 +4,7 @@ export enum SocketSend {
     handshake = 'handshake',
     cardSelected = 'cardSelected',
     visitorSelected = 'visitorSelected',
+    orgaSelected = 'orgaSelected',
     missionSelected = 'missionSelected',
 }
 

@@ -21,16 +21,16 @@ function Player(props: IProps) {
 
     return (
         <div className={cls.join(' ')}>
-            <div className='name'>{props.name}</div>
+            <div className='name'><i style={{backgroundColor: props.color}}></i>{props.name} {player.firstPlayer ? '(first player)' : ''}</div>
             <div className='hand'>
                 {
                     player.actionHand.map((c,i) => 
-                        <Card key={i} uuid={c.uuid} type='action'/>
+                        <Card key={i} uuid={c.uuid} size='small' type='action'/>
                         )
                 }
                 {
                     player.orgahand.map((c,i) => 
-                        <Card key={i} uuid={c.uuid} type='organisation'/>
+                        <Card key={i} uuid={c.uuid} size='small' type='organisation'/>
                         )
                 }
             </div>
@@ -39,9 +39,11 @@ function Player(props: IProps) {
                     player.mission.map(m => 
                         <Mission key={m.uuid} 
                                 uuid={m.uuid}
+                                sabotage={m.sabotage}
+                                size='small'
                                 visibleCard={m.visible}
-                                action={<Card uuid={m.action.uuid} type='action' action={m.action.action} forceVisible={m.visible === 'action'}/>}
-                                orga={<Card uuid={m.orga.uuid} type='organisation' action={m.orga.organisation} forceVisible={m.visible !== 'action'}/>}
+                                action={<Card uuid={m.action.uuid} size='small' type='action' action={m.action.action} forceVisible={m.visible === 'action'}/>}
+                                orga={<Card uuid={m.orga.uuid} size='small' type='organisation' organisation={m.orga.organisation} forceVisible={m.visible !== 'action'}/>}
                                 />
                         )
                 }

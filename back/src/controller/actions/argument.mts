@@ -35,7 +35,7 @@ export async function pickMission(args: {player: PlayerConsole | PlayerFront,  p
     return result
 }
 
-export async function pickVisitor(args: {player: PlayerConsole, queue: boolean, entrance: boolean, organisation: ORGANISATIONS, board: Board, howMuch: number} ) {
+export async function pickVisitor(args: {player: PlayerConsole | PlayerFront, queue: boolean, entrance: boolean, organisation: ORGANISATIONS, board: Board, howMuch: number} ) {
     const {organisation, board, player, queue, entrance, howMuch} = args
 
     const result: Visitor[] = []
@@ -47,16 +47,31 @@ export async function pickVisitor(args: {player: PlayerConsole, queue: boolean, 
             ...rawCandidates.organisation.filter(n => !result.includes(n) )
         ]
         
-        const uuid = await player.ask("Pick a visitor (or queue)", candidate.map( v => {
-            const value = v.seen.includes(player) ? ` : ${v.value}` : ''
-            return `${v.uuid}${value} - ${v.position.where} ${v.position.steps || ''}`
-        }).join('\n') )
-
-        if (uuid === 'queue' && candidate.length < (howMuch - i)) {
-            result.push(PlayerBrain.pickRandom(rawCandidates.queue))
+        if (candidate.length > 0) {
+            let uuid: string = ''
+            if (PlayerConsole.isPlayerConsole(player)) {
+                uuid = await player.ask("Pick a visitor (or queue)", candidate.map( v => {
+                    const value = v.seen.includes(player) ? ` : ${v.value}` : ''
+                    return `${v.uuid}${value} - ${v.position.where} ${v.position.steps || ''}`
+                }).join('\n') )
+                
+            } else if (PlayerFront.isPlayerFront(player)) {
+                uuid = await player.ask(`Select a visitor`, {visitor: candidate.map(n => n.uuid)})
+            }
+    
+            if (uuid === 'queue' && candidate.length < (howMuch - i)) {
+                result.push(PlayerBrain.pickRandom(rawCandidates.queue))
+            } else {
+                result.push(...candidate.filter(v => v.uuid === uuid))
+            }
         } else {
-            result.push(...candidate.filter(v => v.uuid === uuid))
+
+            if (queue && rawCandidates.queue.length > 0) {
+                const visitor = PlayerBrain.pickRandom(rawCandidates.queue)
+                result.push(visitor)
+            }
         }
+
     
     }
 

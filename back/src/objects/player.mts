@@ -81,6 +81,7 @@ export default class Player extends Entity {
         return {
             name: this._name,
             color: this.color,
+            firstPlayer: this._hasSecurityToken,
             actionHand: this._hand.action.map(n => n.export(forPlayer)),
             orgahand: this._hand.orga.map(n => n.export(forPlayer)),
             mission: this._missions.map(m => m.export(forPlayer)),

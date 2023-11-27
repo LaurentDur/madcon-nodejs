@@ -37,6 +37,7 @@ export default class Mission extends Entity {
             orga: this.organisation?.export( this._visible === 'organisaton' ? this.organisation.owner : forPlayer ),
             visible: this._visible,
             executed: this._executed,
+            sabotage: this.sabotage.map(s => s.card.export(s.card.owner)),
             ...super.export(forPlayer)
         }
     }
